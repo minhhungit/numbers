@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Number Generator</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            color: #ffffff;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .number-display {
+            font-size: 10rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .no_selection {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -khtml-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        .suffix {
+            font-size: 5rem;
+            vertical-align: super;
+            position: absolute;
+            top: 0;
+        }
+
+        .text-display {
+            margin-top: 50px;
+            font-size: 6rem;
+            font-weight: 300;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            opacity: 0.1;
+        }
+    </style>
+</head>
+<body class="no_selection">
+    <div class="number-display" id="numberDisplay">
+        <div style="font-size: 5rem">Tap to generate a number</div>
+    </div>   
+    <div class="text-display" id="textDisplay"></div>
+
+    <script>
+        const ones = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+        const teens = ["eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+        const tens = ["", "ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+
+        function generateRandomNumber() {
+            const randomNumber = Math.floor(Math.random() * 100) + 1;
+            const isOrdinal = Math.random() < 0.5;
+
+            return isOrdinal 
+                ? convertToOrdinal(randomNumber) 
+                : { number: randomNumber.toString(), suffix: '', isOrdinal: false };
+        }
+
+        function convertToOrdinal(number) {
+            const suffixes = ["th", "st", "nd", "rd"];
+            const value = number % 100;
+
+            const suffix = (value >= 11 && value <= 13)
+                ? suffixes[0]
+                : suffixes[Math.min(value % 10, 4)] || suffixes[0];
+
+            return { number: number.toString(), suffix: suffix, isOrdinal: true };
+        }
+
+        function numberToWords(num, isOrdinal = false) {
+            if (num === 0) return "zero";
+
+            let result = "";
+            let currentNum = num;
+
+            if (currentNum >= 1000) {
+                result += ones[Math.floor(currentNum / 1000)] + " thousand ";
+                currentNum %= 1000;
+            }
+
+            if (currentNum >= 100) {
+                result += ones[Math.floor(currentNum / 100)] + " hundred ";
+                currentNum %= 100;
+            }
+
+            if (currentNum >= 20) {
+                result += tens[Math.floor(currentNum / 10)] + " ";
+                currentNum %= 10;
+            }
+
+            if (currentNum >= 11 && currentNum <= 19) {
+                result += teens[currentNum - 11] + " ";
+                currentNum = 0;
+            }
+
+            if (currentNum > 0) {
+                result += ones[currentNum] + " ";
+            }
+
+            result = result.trim();
+
+            if (isOrdinal) {
+                const words = result.split(" ");
+                const lastWord = words.pop();
+
+                // Handle special ordinal cases
+                words.push(toOrdinalWord(lastWord));
+                result = words.join(" ");
+            }
+
+            return result.trim();
+        }
+
+        function toOrdinalWord(word) {
+            const specialCases = {
+                one: "first",
+                two: "second",
+                three: "third",
+                five: "fifth",
+                eight: "eighth",
+                nine: "ninth",
+                twelve: "twelfth",
+                twenty: "twentieth",
+                thirty: "thirtieth",
+                forty: "fortieth",
+                fifty: "fiftieth",
+                sixty: "sixtieth",
+                seventy: "seventieth",
+                eighty: "eightieth",
+                ninety: "ninetieth"
+            };
+
+            return specialCases[word] || word + "th";
+        }
+
+        function showNewNumber() {
+            const numberDisplay = document.getElementById('numberDisplay');
+            const textDisplay = document.getElementById('textDisplay');
+            const { number, suffix, isOrdinal } = generateRandomNumber();
+
+            numberDisplay.innerHTML = `${number}<span class="suffix">${suffix}</span>`;
+            textDisplay.textContent = numberToWords(parseInt(number), isOrdinal);
+        }
+
+        document.body.addEventListener('click', showNewNumber);
+    </script>
+</body>
+</html>
