@@ -24,6 +24,7 @@
             font-weight: bold;
             text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
             position: relative;
+            margin-top: 60px;
         }
 
         .no_selection {
@@ -48,11 +49,37 @@
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
             opacity: 0.3;
         }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        button {
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ffffff;
+            color: #ff5f5f;
+            cursor: pointer;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+            transform: translateY(2px);
+        }
     </style>
 </head>
 <body class="no_selection">
+    <div class="buttons">
+        <button id="decreaseSpeed">⏪ Decrease Speed</button>
+        <button id="increaseSpeed">Increase Speed ⏩</button>
+    </div>
+
     <div class="number-display" id="numberDisplay">
-        <div style="font-size: 5rem">Tap to generate a number</div>
+        <!-- <div style="font-size: 5rem">Tap to generate a number</div> -->
     </div>   
     <div class="text-display" id="textDisplay"></div>
 
@@ -60,6 +87,9 @@
         const ones = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
         const teens = ["eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
         const tens = ["", "ten", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+
+        let intervalId = null;
+        let speed = 1500; // Initial speed in milliseconds (1 second)
 
         function generateRandomNumber() {
             const randomNumber = Math.floor(Math.random() * 100) + 1;
@@ -156,7 +186,32 @@
             textDisplay.textContent = numberToWords(parseInt(number), isOrdinal);
         }
 
-        document.body.addEventListener('click', showNewNumber);
+        function startGeneratingNumbers() {
+            clearInterval(intervalId);
+            intervalId = setInterval(showNewNumber, speed);
+        }
+
+        function increaseSpeed() {
+            if (speed > 100) { // Limit the minimum speed to 100ms
+                speed -= 100;
+                startGeneratingNumbers();
+            }
+        }
+
+        function decreaseSpeed() {
+            if (speed < 5000) { // Limit the maximum speed to 5 seconds
+                speed += 100;
+                startGeneratingNumbers();
+            }
+        }
+
+        // Event listeners
+        document.getElementById('increaseSpeed').addEventListener('click', increaseSpeed);
+        document.getElementById('decreaseSpeed').addEventListener('click', decreaseSpeed);
+
+        // Start the interval when the page loads
+        showNewNumber();
+        startGeneratingNumbers();
     </script>
 </body>
 </html>
